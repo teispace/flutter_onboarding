@@ -1,7 +1,6 @@
 name: flutter_onboarding
 description: Simple Flutter Onboarding
-version: 0.0.4
-author: Krishna Adhikari <forkhakitech@gmail.com>
+version: 0.0.5
 homepage: https://github.com//Iamkrishnaa/flutter_onboarding
 environment:
   sdk: ">=2.12.0 <3.0.0"

@@ -13,3 +13,7 @@
 ## 0.0.4
 
 - Bug fixes and License modified
+
+## 0.0.5
+
+- Bug fixes and License modified
