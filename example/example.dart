@@ -36,7 +36,7 @@ class ExampleOnBoarding extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FlutterOnBoarding(
-        bgColor: Colors.green,
+        backgroundColor: Colors.green,
         pages: pages,
         onGetStartedRoute: MaterialPageRoute(
           builder: (context) => const HomePage(),

@@ -17,3 +17,7 @@
 ## 0.0.5
 
 - Bug fixes and License modified
+
+## 0.0.6
+
+- Bug fixes, Button modified and more understandable variables
