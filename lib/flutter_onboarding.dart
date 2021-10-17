@@ -14,10 +14,11 @@ class FlutterOnBoarding extends StatefulWidget {
   final Color inactiveIndicatorColor;
   final TextStyle skipButtonTextStyle;
   final Color nextButtonColor;
-  final Color getStartedButtonColor;
   final TextStyle getStartedButtonTextStyle;
   final double imageHeight;
   final double imageWidth;
+  final BoxDecoration getStartedButtonDecoration;
+  final Size? getStartedButtonSize;
 
   const FlutterOnBoarding({
     Key? key,
@@ -31,7 +32,6 @@ class FlutterOnBoarding extends StatefulWidget {
       fontSize: 20,
     ),
     this.nextButtonColor = Colors.orange,
-    this.getStartedButtonColor = Colors.pink,
     this.getStartedButtonTextStyle = const TextStyle(
       color: Colors.white,
       fontSize: 20.0,
@@ -40,6 +40,13 @@ class FlutterOnBoarding extends StatefulWidget {
     this.imageHeight = 300,
     this.imageWidth = 300,
     required this.onGetStartedRoute,
+    this.getStartedButtonDecoration = const BoxDecoration(
+      color: Colors.pink,
+      borderRadius: BorderRadius.all(
+        Radius.circular(50.0),
+      ),
+    ),
+    this.getStartedButtonSize,
   }) : super(key: key);
 
   @override
@@ -86,7 +93,7 @@ class FlutterOnBoardingState extends State<FlutterOnBoarding> {
     );
   }
 
-  bool isAlreadyViewed = false;
+  bool? isAlreadyViewed;
 
   Future checkFirstSeen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -99,6 +106,10 @@ class FlutterOnBoardingState extends State<FlutterOnBoarding> {
       Navigator.of(context).pushReplacement(widget.onGetStartedRoute);
     } else {
       await prefs.setBool('seen', true);
+
+      setState(() {
+        isAlreadyViewed = _seen;
+      });
     }
   }
 
@@ -108,108 +119,130 @@ class FlutterOnBoardingState extends State<FlutterOnBoarding> {
     checkFirstSeen();
   }
 
+  Widget buildWaitingScreen() {
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          LinearProgressIndicator(
+            color: widget.backgroundColor,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return isAlreadyViewed
-        ? const Scaffold()
-        : Scaffold(
-            backgroundColor: widget.backgroundColor,
-            body: AnnotatedRegion<SystemUiOverlayStyle>(
-              value: SystemUiOverlayStyle.light,
-              child: SafeArea(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Expanded(
-                          flex: 8,
-                          child: Container(
-                            color: Colors.transparent,
-                            child: PageView(
-                              physics: const ClampingScrollPhysics(),
-                              controller: _pageController,
-                              onPageChanged: (int page) {
-                                setState(
-                                  () {
-                                    _currentPage = page;
+    return isAlreadyViewed == null
+        ? buildWaitingScreen()
+        : !isAlreadyViewed!
+            ? Scaffold(
+                backgroundColor: widget.backgroundColor,
+                body: AnnotatedRegion<SystemUiOverlayStyle>(
+                  value: SystemUiOverlayStyle.light,
+                  child: SafeArea(
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Expanded(
+                              flex: 8,
+                              child: Container(
+                                color: Colors.transparent,
+                                child: PageView(
+                                  physics: const ClampingScrollPhysics(),
+                                  controller: _pageController,
+                                  onPageChanged: (int page) {
+                                    setState(
+                                      () {
+                                        _currentPage = page;
+                                      },
+                                    );
                                   },
-                                );
-                              },
-                              children: buildFlutterOnBoardingPages(),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: _buildPageIndicator(),
-                          ),
-                        ),
-                        _currentPage != widget.pages.length - 1
-                            ? Expanded(
-                                flex: 1,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      alignment: Alignment.centerRight,
-                                      child: TextButton(
-                                        onPressed: () {
-                                          _pageController.jumpToPage(
-                                              widget.pages.length - 1);
-                                        },
-                                        child: Text(
-                                          'Skip',
-                                          style: widget.skipButtonTextStyle,
-                                        ),
-                                      ),
-                                    ),
-                                    Align(
-                                      alignment: FractionalOffset.bottomRight,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                          right: 20,
-                                          bottom: 10,
-                                        ),
-                                        child: FloatingActionButton(
-                                          elevation: 5,
-                                          backgroundColor:
-                                              widget.nextButtonColor,
-                                          child: const Icon(
-                                            Icons.arrow_forward,
-                                            color: Colors.white,
-                                          ),
-                                          onPressed: () {
-                                            _pageController.nextPage(
-                                              duration: const Duration(
-                                                milliseconds: 500,
-                                              ),
-                                              curve: Curves.ease,
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  children: buildFlutterOnBoardingPages(),
                                 ),
-                              )
-                            : Expanded(
-                                flex: 1,
-                                child: _showGetStartedButton(),
                               ),
-                      ],
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: _buildPageIndicator(),
+                              ),
+                            ),
+                            _currentPage != widget.pages.length - 1
+                                ? Expanded(
+                                    flex: 1,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          alignment: Alignment.centerRight,
+                                          child: TextButton(
+                                            onPressed: () {
+                                              _pageController.jumpToPage(
+                                                  widget.pages.length - 1);
+                                            },
+                                            child: Text(
+                                              'Skip',
+                                              style: widget.skipButtonTextStyle,
+                                            ),
+                                          ),
+                                        ),
+                                        Align(
+                                          alignment:
+                                              FractionalOffset.bottomRight,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              right: 20,
+                                              bottom: 10,
+                                            ),
+                                            child: FloatingActionButton(
+                                              elevation: 5,
+                                              backgroundColor:
+                                                  widget.nextButtonColor,
+                                              child: const Icon(
+                                                Icons.arrow_forward,
+                                                color: Colors.white,
+                                              ),
+                                              onPressed: () {
+                                                _pageController.nextPage(
+                                                  duration: const Duration(
+                                                    milliseconds: 500,
+                                                  ),
+                                                  curve: Curves.ease,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : widget.getStartedButtonSize == null
+                                    ? Expanded(
+                                        flex: 1,
+                                        child: _showGetStartedButton(0, 0),
+                                      )
+                                    : _showGetStartedButton(
+                                        widget.getStartedButtonSize!.width,
+                                        widget.getStartedButtonSize!.height,
+                                      ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          );
+              )
+            : widget.onGetStartedRoute.buildContent(context);
   }
 
   Widget _showPageData(IntroModel page) {
@@ -248,7 +281,7 @@ class FlutterOnBoardingState extends State<FlutterOnBoarding> {
     );
   }
 
-  Widget _showGetStartedButton() {
+  Widget _showGetStartedButton(double width, double height) {
     return Padding(
       padding: const EdgeInsets.only(
         left: 20.0,
@@ -259,12 +292,9 @@ class FlutterOnBoardingState extends State<FlutterOnBoarding> {
           Navigator.pushReplacement(context, widget.onGetStartedRoute);
         },
         child: Container(
-          decoration: BoxDecoration(
-            color: widget.getStartedButtonColor,
-            borderRadius: const BorderRadius.all(
-              Radius.circular(50.0),
-            ),
-          ),
+          width: width,
+          height: height,
+          decoration: widget.getStartedButtonDecoration,
           child: Center(
             child: Text(
               'Get Started',

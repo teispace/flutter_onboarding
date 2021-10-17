@@ -21,3 +21,7 @@
 ## 0.0.6
 
 - Bug fixes, Button modified and more understandable variables
+
+## 0.0.7
+
+- Screen Flickering Bug fixed, Custom Design to Get Started button added
