@@ -14,11 +14,11 @@ A new flutter package that assists developers to create good looking onboarding 
 
 ## Usage
 
-[Example](https://github.com/Iamkrishnaa/flutter_onboarding/example/example.dart)
+[Example](https://github.com/teispace/flutter_onboarding/example/example.dart)
 
 To use this package :
 
-- add the dependency to your [pubspec.yaml](https://github.com/Iamkrishnaa/flutter_onboarding/pubspec.yaml) file.
+- add the dependency to your [pubspec.yaml](https://github.com/teispace/flutter_onboarding/pubspec.yaml) file.
 
 ```yaml
 dependencies:
@@ -98,7 +98,7 @@ I welcome and encourage all pull requests. It usually will take me within 24-48 
 
 # License
 
-Copyright (c) 2021, iamkrishnaa.
+Copyright (c) 2021, teispace.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
