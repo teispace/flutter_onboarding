@@ -25,3 +25,7 @@
 ## 0.0.7
 
 - Screen Flickering Bug fixed, Custom Design to Get Started button added
+
+## 0.0.8
+
+- Bug fixed and Default Scroll Physics Changed to Bouncing Scroll Physics

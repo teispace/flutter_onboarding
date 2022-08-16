@@ -156,7 +156,7 @@ class FlutterOnBoardingState extends State<FlutterOnBoarding> {
                               child: Container(
                                 color: Colors.transparent,
                                 child: PageView(
-                                  physics: const ClampingScrollPhysics(),
+                                  physics: const BouncingScrollPhysics(),
                                   controller: _pageController,
                                   onPageChanged: (int page) {
                                     setState(
