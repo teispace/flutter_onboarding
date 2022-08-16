@@ -19,6 +19,7 @@ class FlutterOnBoarding extends StatefulWidget {
   final double imageWidth;
   final BoxDecoration getStartedButtonDecoration;
   final Size? getStartedButtonSize;
+  final ScrollPhysics? pageScrollPhysics;
 
   const FlutterOnBoarding({
     Key? key,
@@ -47,6 +48,7 @@ class FlutterOnBoarding extends StatefulWidget {
       ),
     ),
     this.getStartedButtonSize,
+    this.pageScrollPhysics = const BouncingScrollPhysics(),
   }) : super(key: key);
 
   @override
@@ -156,7 +158,7 @@ class FlutterOnBoardingState extends State<FlutterOnBoarding> {
                               child: Container(
                                 color: Colors.transparent,
                                 child: PageView(
-                                  physics: const BouncingScrollPhysics(),
+                                  physics: widget.pageScrollPhysics,
                                   controller: _pageController,
                                   onPageChanged: (int page) {
                                     setState(

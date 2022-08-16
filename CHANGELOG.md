@@ -29,3 +29,7 @@
 ## 0.0.8
 
 - Bug fixed and Default Scroll Physics Changed to Bouncing Scroll Physics
+
+## 0.0.8
+
+- Bug fixed and Default Scroll Physics Changed to Bouncing Scroll Physics
