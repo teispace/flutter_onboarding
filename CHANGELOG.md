@@ -53,3 +53,7 @@
 ## 1.0.3
 
 - Export optimized
+
+## 1.0.4
+
+- Documentation Updated

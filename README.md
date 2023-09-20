@@ -2,13 +2,25 @@
 
 A new flutter package that assists developers to create good looking onboarding screen.
 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center;">
+<img src="1.gif" height="300" alt="Flutter Onboarding" style="margin:16px; border-radius:16px;">
+
+<img src="2.gif" height="300" alt="Flutter Onboarding" style="margin:16px; border-radius:16px;">
+</div>
+
 ### Features
 
-#### >> One time onboarding, will not visible after first run
+#### - One time onboarding, will not visible after first run
 
-#### >> Simple and fast
+#### - Simple and fast
 
-#### >> Animated
+#### - Animated
+
+#### - Multi Directional `Can be used in any direction, horizontal scroll, vertical scroll`
+
+#### - Customizable
+
+#### - Easy to use
 
 ### Show some :heart: and star the repo to support the project
 
