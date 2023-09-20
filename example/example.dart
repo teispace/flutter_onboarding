@@ -1,46 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_onboarding/flutter_onboarding.dart';
-import 'package:flutter_onboarding/onboarding_model.dart';
+import 'package:flutter_onboarding/models/intro_model.dart';
 import 'home.dart';
 
 class ExampleOnBoarding extends StatelessWidget {
-  ExampleOnBoarding({Key? key}) : super(key: key);
+  const ExampleOnBoarding({Key? key}) : super(key: key);
 
-  final pages = [
-    IntroModel(
-      title: 'On boarding page 1',
-      description:
+  List<IntroModel> pages(BuildContext context) {
+    return [
+      IntroModel(
+        title: Text(
+          'On boarding page 1',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+          textAlign: TextAlign.center,
+        ),
+        description: Text(
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
-      titleColor: Colors.white,
-      descriptionColor: Colors.white,
-      imagePath: 'assets/image.png',
-    ),
-    IntroModel(
-      title: 'On boarding page 2',
-      description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
-      titleColor: Colors.white,
-      descriptionColor: Colors.white,
-      imagePath: 'assets/image.png',
-    ),
-    IntroModel(
-      title: 'On boarding page 3',
-      description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
-      titleColor: Colors.white,
-      descriptionColor: Colors.white,
-      imagePath: 'assets/image.png',
-    ),
-  ];
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        image: Image.asset(
+          'assets/image.png',
+          fit: BoxFit.contain,
+          height: MediaQuery.of(context).size.height * 0.5,
+        ).animate().fadeIn().scale().move(
+              delay: 800.ms,
+              duration: 600.ms,
+            ),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FlutterOnBoarding(
-        backgroundColor: Colors.green,
-        pages: pages,
-        onGetStartedRoute: MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ),
+        pages: pages(context),
+        onDone: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomePage(),
+            ),
+          );
+        },
       ),
     );
   }

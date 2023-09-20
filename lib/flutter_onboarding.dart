@@ -1,309 +1,346 @@
-library flutter_onboarding;
-
+import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_onboarding/onboarding_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'models/intro_model.dart';
+import 'widgets/custom_rounded_button.dart';
+
 class FlutterOnBoarding extends StatefulWidget {
-  final List<IntroModel> pages;
-  final Color backgroundColor;
-  final MaterialPageRoute onGetStartedRoute;
-
-  final Color activeIndicatorColor;
-  final Color inactiveIndicatorColor;
-  final TextStyle skipButtonTextStyle;
-  final Color nextButtonColor;
-  final TextStyle getStartedButtonTextStyle;
-  final double imageHeight;
-  final double imageWidth;
-  final BoxDecoration getStartedButtonDecoration;
-  final Size? getStartedButtonSize;
-  final ScrollPhysics? pageScrollPhysics;
-
-  const FlutterOnBoarding({
-    Key? key,
+  FlutterOnBoarding({
+    super.key,
     required this.pages,
-    required this.backgroundColor,
-    this.activeIndicatorColor = Colors.pink,
-    this.inactiveIndicatorColor = Colors.white,
-    this.skipButtonTextStyle = const TextStyle(
-      fontWeight: FontWeight.w500,
-      color: Colors.white,
-      fontSize: 20,
-    ),
-    this.nextButtonColor = Colors.orange,
-    this.getStartedButtonTextStyle = const TextStyle(
-      color: Colors.white,
-      fontSize: 20.0,
-      fontWeight: FontWeight.w500,
-    ),
-    this.imageHeight = 300,
-    this.imageWidth = 300,
-    required this.onGetStartedRoute,
-    this.getStartedButtonDecoration = const BoxDecoration(
-      color: Colors.pink,
-      borderRadius: BorderRadius.all(
-        Radius.circular(50.0),
-      ),
-    ),
-    this.getStartedButtonSize,
-    this.pageScrollPhysics = const BouncingScrollPhysics(),
-  }) : super(key: key);
+    this.scrollDirection = Axis.vertical,
+    this.physics = const BouncingScrollPhysics(),
+    required this.onDone,
+    this.activeIndicatorShape,
+    this.inactiveIndicatorShape,
+    this.activeIndicatorSize,
+    this.inactiveIndicatorSize,
+    this.pageController,
+    this.skipButtonText,
+    this.nextButtonText,
+    this.doneButtonText,
+    this.indicator,
+    this.navigationControl,
+    this.indicatorActiveColor,
+    this.indicatorInactiveColor,
+    this.skipButtonColor,
+    this.nextButtonColor,
+    this.loadingWidget,
+    this.shouldUseDefaultStorage = true,
+  }) : assert(pages.isNotEmpty, 'You must provide at least one page.');
+
+  /// The list of pages to display in the onboarding flow.
+  /// Pages are of type [IntroModel], and are rendered in order.
+  final List<IntroModel> pages;
+
+  /// For the direction of the scroll, use [Axis.horizontal] for left-to-right scrolling, and [Axis.vertical] for top-to-bottom scrolling.
+  final Axis scrollDirection;
+
+  /// Scroll Physics. Defaults to [BouncingScrollPhysics].
+  final ScrollPhysics? physics;
+
+  /// Onboarding done callback. This is called when the user taps the done button.
+  final VoidCallback onDone;
+
+  //dot indicator decorators
+
+  /// The shape of the dot indicator. Defaults to [RoundedRectangleBorder].
+  final ShapeBorder? activeIndicatorShape;
+
+  /// The shape of the dot indicator. Defaults to [RoundedRectangleBorder].
+  final ShapeBorder? inactiveIndicatorShape;
+
+  /// The size of the dot indicator. Defaults to [Size.square(10.0)].
+  final Size? activeIndicatorSize;
+
+  /// The size of the dot indicator. Defaults to [Size.square(10.0)].
+  final Size? inactiveIndicatorSize;
+
+  /// Page controller used to control the scrolling of the onboarding flow.
+  final PageController? pageController;
+
+  /// Skip Button Text
+  final String? skipButtonText;
+
+  /// Next Button Text
+  final String? nextButtonText;
+
+  /// Done Button Text
+  final String? doneButtonText;
+
+  /// The widget to show as the indicator. Defaults to [DotsIndicator].
+  final Widget? indicator;
+
+  /// The widget for controlling the state of the onboarding flow. i.e. Navigation buttons.
+  final Widget? navigationControl;
+
+  /// Indicator active color. Defaults to [Theme.of(context).primaryColor].
+  final Color? indicatorActiveColor;
+
+  /// Indicator inactive color. Defaults to [Colors.grey].
+  final Color? indicatorInactiveColor;
+
+  /// Skip TextButton color. Defaults to [Theme.of(context).primaryColor].
+  final Color? skipButtonColor;
+
+  /// Next TextButton color. Defaults to [Theme.of(context).primaryColor].
+  final Color? nextButtonColor;
+
+  /// Widget that shows before inititalizing the onboarding flow. Defaults to [CircularProgressIndicator].
+  final Widget? loadingWidget;
+
+  /// Whether to use the default storage to store the onboarding state. Defaults to true.
+  /// This is useful if you want to use your own storage, from inside your logic.
+  /// If this is set to false and you don't provide your own storage logic, the onboarding flow will not be marked as done. and will reappear on every app launch.
+  /// Note: Handle the one time show logic yourself if you set this to false.
+  final bool shouldUseDefaultStorage;
 
   @override
-  FlutterOnBoardingState createState() => FlutterOnBoardingState();
+  State<FlutterOnBoarding> createState() => _FlutterOnBoardingState();
 }
 
-class FlutterOnBoardingState extends State<FlutterOnBoarding> {
-  final PageController _pageController = PageController(
-    initialPage: 0,
-  );
-  int _currentPage = 0;
+class _FlutterOnBoardingState extends State<FlutterOnBoarding> {
+  /// The current page displayed in the onboarding flow. Defaults to 0.
+  int currentPage = 0;
 
-  List<Widget> _buildPageIndicator() {
-    List<Widget> list = [];
-    for (int i = 0; i < widget.pages.length; i++) {
-      list.add(i == _currentPage ? _indicator(true) : _indicator(false));
-    }
-    return list;
-  }
+  /// The [PageController] used to control the scrolling of the onboarding flow.
+  late PageController pageController;
 
-  List<Widget> buildFlutterOnBoardingPages() {
-    final children = <Widget>[];
+  /// The [SharedPreferences] instance used to store the onboarding state. Defaults to null.
+  late SharedPreferences prefs;
 
-    for (int i = 0; i < widget.pages.length; i++) {
-      children.add(_showPageData(widget.pages[i]));
-    }
-    return children;
-  }
-
-  Widget _indicator(bool isActive) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      margin: const EdgeInsets.symmetric(horizontal: 4.0),
-      height: 12.0,
-      width: isActive ? 35.0 : 12.0,
-      decoration: BoxDecoration(
-        color: isActive
-            ? widget.activeIndicatorColor
-            : widget.inactiveIndicatorColor,
-        borderRadius: const BorderRadius.all(
-          Radius.circular(12),
-        ),
-      ),
-    );
-  }
-
-  bool? isAlreadyViewed;
-
-  Future checkFirstSeen() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool _seen = (prefs.getBool('seen') ?? false);
-
-    if (_seen) {
-      setState(() {
-        isAlreadyViewed = _seen;
-      });
-      Navigator.of(context).pushReplacement(widget.onGetStartedRoute);
-    } else {
-      await prefs.setBool('seen', true);
-
-      setState(() {
-        isAlreadyViewed = _seen;
-      });
-    }
-  }
+  /// Whether the onboarding flow is loading. Defaults to true.
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    checkFirstSeen();
+    pageController = widget.pageController ?? PageController();
+
+    if (widget.shouldUseDefaultStorage) {
+      _initPrefs();
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
-  Widget buildWaitingScreen() {
-    return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          LinearProgressIndicator(
-            color: widget.backgroundColor,
-          ),
-        ],
-      ),
-    );
+  _initPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    bool? isDone = prefs.getBool('isDone');
+
+    if (isDone != null && isDone) {
+      widget.onDone.call();
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  //set onboarding state to done
+  _setOnboardingDone() async {
+    if (widget.shouldUseDefaultStorage) {
+      await prefs.setBool('isDone', true);
+    }
+  }
+
+  //dispose
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return isAlreadyViewed == null
-        ? buildWaitingScreen()
-        : !isAlreadyViewed!
-            ? Scaffold(
-                backgroundColor: widget.backgroundColor,
-                body: AnnotatedRegion<SystemUiOverlayStyle>(
-                  value: SystemUiOverlayStyle.light,
-                  child: SafeArea(
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Expanded(
-                              flex: 8,
-                              child: Container(
-                                color: Colors.transparent,
-                                child: PageView(
-                                  physics: widget.pageScrollPhysics,
-                                  controller: _pageController,
-                                  onPageChanged: (int page) {
-                                    setState(
-                                      () {
-                                        _currentPage = page;
-                                      },
-                                    );
-                                  },
-                                  children: buildFlutterOnBoardingPages(),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: _buildPageIndicator(),
-                              ),
-                            ),
-                            _currentPage != widget.pages.length - 1
-                                ? Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          alignment: Alignment.centerRight,
-                                          child: TextButton(
-                                            onPressed: () {
-                                              _pageController.jumpToPage(
-                                                  widget.pages.length - 1);
-                                            },
-                                            child: Text(
-                                              'Skip',
-                                              style: widget.skipButtonTextStyle,
-                                            ),
-                                          ),
-                                        ),
-                                        Align(
-                                          alignment:
-                                              FractionalOffset.bottomRight,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              right: 20,
-                                              bottom: 10,
-                                            ),
-                                            child: FloatingActionButton(
-                                              elevation: 5,
-                                              backgroundColor:
-                                                  widget.nextButtonColor,
-                                              child: const Icon(
-                                                Icons.arrow_forward,
-                                                color: Colors.white,
-                                              ),
-                                              onPressed: () {
-                                                _pageController.nextPage(
-                                                  duration: const Duration(
-                                                    milliseconds: 500,
-                                                  ),
-                                                  curve: Curves.ease,
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : widget.getStartedButtonSize == null
-                                    ? Expanded(
-                                        flex: 1,
-                                        child: _showGetStartedButton(0, 0),
-                                      )
-                                    : _showGetStartedButton(
-                                        widget.getStartedButtonSize!.width,
-                                        widget.getStartedButtonSize!.height,
-                                      ),
-                          ],
-                        ),
-                      ),
-                    ),
+    return isLoading
+        ? widget.loadingWidget ??
+            const Center(child: CircularProgressIndicator())
+        : SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Stack(
+                children: [
+                  PageView.builder(
+                    itemCount: widget.pages.length,
+                    controller: pageController,
+                    physics: widget.physics,
+                    onPageChanged: (value) {
+                      setState(() {
+                        currentPage = value;
+                      });
+                    },
+                    scrollDirection: widget.scrollDirection == Axis.vertical
+                        ? Axis.vertical
+                        : Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      bool isLastPage = index == widget.pages.length - 1;
+                      IntroModel introModel = widget.pages[index];
+                      return Column(
+                        children: [
+                          // image
+                          _buildMainPageContent(introModel, context),
+
+                          const SizedBox(height: 32.0),
+
+                          if (widget.scrollDirection != Axis.vertical)
+                            widget.indicator ?? _buildIndicators(),
+
+                          // button
+                          widget.navigationControl ??
+                              _buildNavigationSection(
+                                  isLastPage, context, index),
+                          const SizedBox(height: 32.0),
+                        ],
+                      );
+                    },
                   ),
-                ),
-              )
-            : widget.onGetStartedRoute.buildContent(context);
+                  if (widget.scrollDirection == Axis.vertical)
+                    Positioned(
+                      right: 0.0,
+                      top: 0.0,
+                      child: widget.indicator ?? _buildIndicators(),
+                    ),
+                ],
+              ),
+            ),
+          );
   }
 
-  Widget _showPageData(IntroModel page) {
-    return Padding(
-      padding: const EdgeInsets.all(40.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Center(
-            child: Image(
-              image: AssetImage(page.imagePath),
-              height: widget.imageHeight,
-              width: widget.imageWidth,
+  Expanded _buildMainPageContent(
+    IntroModel introModel,
+    BuildContext context,
+  ) {
+    return Expanded(
+      child: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // image
+                introModel.image,
+
+                const SizedBox(height: 32.0),
+
+                // title
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16.0,
+                    horizontal: 32.0,
+                  ),
+                  child: introModel.title,
+                ),
+
+                // description
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16.0,
+                    horizontal: 32.0,
+                  ),
+                  child: introModel.description,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 30.0),
-          Text(
-            page.title,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: page.titleColor,
-              fontSize: 20,
-            ),
-          ),
-          const SizedBox(height: 15.0),
-          Text(
-            page.description,
-            style: TextStyle(
-              fontWeight: FontWeight.w400,
-              color: page.descriptionColor,
-              fontSize: 16,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _showGetStartedButton(double width, double height) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 20.0,
-        right: 20.0,
-      ),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pushReplacement(context, widget.onGetStartedRoute);
-        },
-        child: Container(
-          width: width,
-          height: height,
-          decoration: widget.getStartedButtonDecoration,
-          child: Center(
+  _buildNavigationSection(
+    bool isLastPage,
+    BuildContext context,
+    int index,
+  ) {
+    return Row(
+      mainAxisAlignment:
+          isLastPage ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
+      children: [
+        if (!isLastPage)
+          TextButton(
+            onPressed: () {
+              pageController.animateToPage(
+                widget.pages.length - 1,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeIn,
+              );
+            },
             child: Text(
-              'Get Started',
-              style: widget.getStartedButtonTextStyle,
+              widget.skipButtonText ?? "Skip",
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+                color: widget.skipButtonColor ?? Theme.of(context).primaryColor,
+              ),
             ),
           ),
+        CustomRoundedButton(
+          color: widget.nextButtonColor ?? Theme.of(context).primaryColor,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 16.0,
+              horizontal: 32.0,
+            ),
+            child: Text(
+              index == widget.pages.length - 1
+                  ? widget.doneButtonText ?? "Done"
+                  : widget.nextButtonText ?? "Next",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          onTap: () async {
+            if (index == widget.pages.length - 1) {
+              await _setOnboardingDone();
+              widget.onDone.call();
+            } else {
+              pageController.nextPage(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeIn,
+              );
+            }
+          },
         ),
+      ],
+    );
+  }
+
+  _buildIndicators() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: DotsIndicator(
+        dotsCount: widget.pages.length,
+        position: currentPage,
+        axis: widget.scrollDirection,
+        decorator: DotsDecorator(
+            activeShape: widget.activeIndicatorShape ??
+                (const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(100.0),
+                  ),
+                )),
+            activeSize: widget.activeIndicatorSize ??
+                (widget.scrollDirection == Axis.vertical
+                    ? const Size(9.0, 24.0)
+                    : const Size(24.0, 9.0)),
+            shape: widget.inactiveIndicatorShape ??
+                (const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(100.0),
+                  ),
+                )),
+            size: widget.inactiveIndicatorSize ?? const Size(9.0, 9.0),
+            color: widget.indicatorInactiveColor ?? Colors.grey,
+            activeColor:
+                widget.indicatorActiveColor ?? Theme.of(context).primaryColor),
       ),
     );
   }

@@ -33,3 +33,11 @@
 ## 0.0.9
 
 - Bug fixed and Default Scroll Physics Changed to Bouncing Scroll Physics
+
+## 1.0.0
+
+- Bug fixed and Default Scroll Physics Changed to Bouncing,
+- Page Indicator Added,
+- SDK updated,
+- Multidirection (Vertical & Horizontal) Support Added
+- Option to enable or disable inbuilt one time onboarding visibility

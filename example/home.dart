@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
         centerTitle: true,
       ),
       body: const Center(
-        child: Text("HomePage"),
+        child: Text("Maintained by Teispace & Open Source Community 🚀 "),
       ),
     );
   }
