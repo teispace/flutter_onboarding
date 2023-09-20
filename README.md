@@ -87,6 +87,93 @@ class ExampleOnBoarding extends StatelessWidget {
 
 ```
 
+# Migration Guide from 0.0.9 to 1.0.0
+
+## Update your pubspec.yaml file
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_onboarding: ^1.0.0
+```
+
+## Update pages models
+
+```dart
+List<IntroModel> pages(BuildContext context) {
+    return [
+      IntroModel(
+        title: Text(
+          'On boarding page 1',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+          textAlign: TextAlign.center,
+        ),
+        description: Text(
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        image: Image.asset(
+          'assets/image.png',
+          fit: BoxFit.contain,
+          height: MediaQuery.of(context).size.height * 0.5,
+        ),
+      ),
+    ];
+  }
+```
+
+## Update your onDone function
+
+Previously there were route parameter in onDone function but now it is removed. So you have to update your onDone function like this.
+
+```dart
+onDone: () {
+  /* function to navigate to your
+  home page/anypage after onboarding is done
+  */
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomePage(),
+            ),
+          );
+        },
+
+```
+
+## Deprecated
+
+```dart
+FlutterOnBoarding(
+        backgroundColor: Colors.green,
+        pages: pages,
+        onGetStartedRoute: MaterialPageRoute(
+          builder: (context) => const HomePage(),
+        ),
+      ),
+```
+
+## New
+
+```dart
+FlutterOnBoarding(
+      pages: pages,
+      onDone: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ),
+        );
+      },
+    ),
+```
+
 # Pull Requests
 
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
@@ -102,6 +189,7 @@ I welcome and encourage all pull requests. It usually will take me within 24-48 
 ### Created & Maintained By
 
 [Teispace Team](https://teispace.com)
+
 [Krishna Adhikari](https://github.com/Iamkrishnaa)
 
 # License
