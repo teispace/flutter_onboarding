@@ -45,3 +45,7 @@
 ## 1.0.1
 
 - Issue during splash transition fixed
+
+## 1.0.2
+
+- Export optimized
