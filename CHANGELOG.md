@@ -49,3 +49,7 @@
 ## 1.0.2
 
 - Export optimized
+
+## 1.0.3
+
+- Export optimized

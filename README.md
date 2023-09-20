@@ -33,7 +33,6 @@ dependencies:
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_onboarding/flutter_onboarding.dart';
-import 'package:flutter_onboarding/models/intro_model.dart';
 import 'home.dart';
 
 class ExampleOnBoarding extends StatelessWidget {
