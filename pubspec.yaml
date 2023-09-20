@@ -24,6 +24,6 @@ flutter:
 
 screenshots:
   - description: "Onboarding Screen"
-    image: 1.gif
+    path: 1.gif
   - description: "Onboarding Screen"
-    image: 2.gif
+    path: 2.gif

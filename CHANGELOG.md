@@ -57,3 +57,7 @@
 ## 1.0.4
 
 - Documentation Updated
+
+## 1.0.5
+
+- Documentation Updated
