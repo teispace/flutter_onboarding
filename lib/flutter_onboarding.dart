@@ -133,6 +133,7 @@ class _FlutterOnBoardingState extends State<FlutterOnBoarding> {
 
     if (isDone != null && isDone) {
       widget.onDone.call();
+      return;
     }
 
     setState(() {

@@ -1,6 +1,6 @@
 name: flutter_onboarding
 description: Actively maintained, community driven flutter animated and onetime onboarding project.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/teispace/flutter_onboarding#readme
 environment:
   sdk: ">=3.1.1 <4.0.0"

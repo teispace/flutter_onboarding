@@ -41,3 +41,7 @@
 - SDK updated,
 - Multidirection (Vertical & Horizontal) Support Added
 - Option to enable or disable inbuilt one time onboarding visibility
+
+## 1.0.1
+
+- Issue during splash transition fixed
