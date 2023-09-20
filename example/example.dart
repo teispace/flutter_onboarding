@@ -6,6 +6,7 @@ import 'home.dart';
 class ExampleOnBoarding extends StatelessWidget {
   const ExampleOnBoarding({Key? key}) : super(key: key);
 
+  /// This is the list of pages that will be shown in the on boarding screen.
   List<IntroModel> pages(BuildContext context) {
     return [
       IntroModel(
@@ -39,6 +40,7 @@ class ExampleOnBoarding extends StatelessWidget {
       body: FlutterOnBoarding(
         pages: pages(context),
         onDone: () {
+          /// When done button is press we navigate to the home page.
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(

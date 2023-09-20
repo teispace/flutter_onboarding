@@ -61,3 +61,7 @@
 ## 1.0.5
 
 - Documentation Updated
+
+## 1.0.6
+
+- Documentation Updated and Bug Fixed

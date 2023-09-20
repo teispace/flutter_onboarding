@@ -127,6 +127,8 @@ class _FlutterOnBoardingState extends State<FlutterOnBoarding> {
     }
   }
 
+  /// Initialize the [SharedPreferences] instance.
+  /// If the onboarding flow is already done, call the [onDone] callback. Otherwise, set [isLoading] to false.
   _initPrefs() async {
     prefs = await SharedPreferences.getInstance();
     bool? isDone = prefs.getBool('isDone');
@@ -141,14 +143,14 @@ class _FlutterOnBoardingState extends State<FlutterOnBoarding> {
     });
   }
 
-  //set onboarding state to done
+  /// Set the onboarding state to done. This is called when the user taps the done button.
   _setOnboardingDone() async {
     if (widget.shouldUseDefaultStorage) {
       await prefs.setBool('isDone', true);
     }
   }
 
-  //dispose
+  /// Dispose the [pageController] instance. This is called when the widget is disposed.
   @override
   void dispose() {
     pageController.dispose();
@@ -211,6 +213,7 @@ class _FlutterOnBoardingState extends State<FlutterOnBoarding> {
           );
   }
 
+  /// Build the main page content. This includes the image, title, and description.
   Expanded _buildMainPageContent(
     IntroModel introModel,
     BuildContext context,
@@ -253,6 +256,7 @@ class _FlutterOnBoardingState extends State<FlutterOnBoarding> {
     );
   }
 
+  /// Build the navigation section. This includes the skip button and the next/done button.
   _buildNavigationSection(
     bool isLastPage,
     BuildContext context,
@@ -314,6 +318,7 @@ class _FlutterOnBoardingState extends State<FlutterOnBoarding> {
     );
   }
 
+  /// Build the dot indicators. This is used when the scroll direction is vertical.
   _buildIndicators() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
