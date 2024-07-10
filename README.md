@@ -224,3 +224,8 @@ SOFTWARE.
 For help getting started with Flutter, view our online [documentation](https://flutter.io/).
 
 For help on editing package code, view the [documentation](https://flutter.io/developing-packages/).
+
+#### Below are the people who has contributed to the Flutter Onboarding. We hope we have your picture here soon.
+<a href="https://github.com/teispace/flutter_onboarding/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=teispace/flutter_onboarding" />
+</a>
